@@ -21,7 +21,7 @@ Before running the project, ensure you have the following installed:
 
 1. **Clone the repository:**
    ```sh
-   git clone https://github.com/your-username/url-shortener.git
+   git clone https://github.com/AMessDev19/AM-URL-Shortener.git
    cd url-shortener
    ```
 

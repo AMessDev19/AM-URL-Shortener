@@ -1,7 +1,6 @@
-import React, { useState } from "react";
+import React, { KeyboardEvent, useState } from "react";
 import CryptoJS from "crypto-js";
-import { Container, Card, CardContent, Typography, TextField, Button, Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper  } from "@mui/material";
-import AspectRatio from '@mui/joy/AspectRatio';
+import { Card, CardContent, Typography, TextField, Button, Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Snackbar, Alert   } from "@mui/material";
 
 interface UrlDatabase {
   [key: string]: string;
@@ -10,15 +9,32 @@ interface UrlDatabase {
 const URLShortener: React.FC = () => {
   const [originalUrl, setOriginalUrl] = useState<string>("");
   const [shortenedUrl, setShortenedUrl] = useState<string>("");
-  const [expandedUrl, setExpandedUrl] = useState<string>("");
+  //const [expandedUrl, setExpandedUrl] = useState<string>("");
   const [urlDatabase, setUrlDatabase] = useState<UrlDatabase>({});
   const [history, setHistory] = useState<{ originalUrl: string; hash: string }[]>([]);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+
+  //Enter Key acts the same as clicking the Button
+  const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+    if (e.code === 'Enter') {
+        shortenUrl();
+    }
+  }
 
   const shortenUrl = () => {
     if (!originalUrl) return;
     const hash = CryptoJS.MD5(originalUrl).toString().slice(0, 6);
     setUrlDatabase((prev) => ({ ...prev, [hash]: originalUrl }));
     let shortURL = "https://sur.ly/" + `${hash}`;
+
+    // Check for duplicate URL in history
+    const isDuplicate = history.some(entry => entry.originalUrl === originalUrl);
+
+    if (isDuplicate) {
+        setSnackbarOpen(true); // Show duplicate warning
+        return;
+      }
+
     setShortenedUrl(shortURL);
 
     // Add the new hash to the history
@@ -26,14 +42,19 @@ const URLShortener: React.FC = () => {
   };
 
   return (
-    <AspectRatio objectFit="contain">
+    //<AspectRatio objectFit="contain">
     <Box
       sx={{
-        width: "100vw",
-        height: "100vh",
+
+        position: "fixed", // Ensures it covers the full screen
+        top: 0,
+        left: 0,
+        width: "100vw", // Full viewport width
+        height: "100vh", // Full viewport height
         backgroundImage: "url('https://images.pexels.com/photos/247599/pexels-photo-247599.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1')",
-        backgroundSize: "100% 100%",
-        backgroundPosition: "center",
+        backgroundSize: "100% 100%", // Stretches the image to fit without gaps
+        backgroundRepeat: "no-repeat",
+        backgroundPosition: "center",        
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
@@ -41,7 +62,7 @@ const URLShortener: React.FC = () => {
         padding: 0, margin: 0, overflow: "hidden",
       }}
     >
-      <Card sx={{ p: 3, mb: 4, backdropFilter: "blur(10px)", backgroundColor: "rgba(255, 255, 255, 0.85)", boxShadow: 3 }}>
+      <Card sx={{ p: 3, mb: 4, backdropFilter: "blur(10px)", backgroundColor: "rgba(212, 212, 212, 0.75)", boxShadow: 3 }}>
         <CardContent>
           <Typography variant="h4" gutterBottom>
             URL Shortener
@@ -52,7 +73,22 @@ const URLShortener: React.FC = () => {
             variant="outlined"
             value={originalUrl}
             onChange={(e) => setOriginalUrl(e.target.value)}
-            sx={{ mb: 2 }}
+            onKeyDown={handleKeyDown}
+            sx={{ mb: 2, backgroundColor: "#ffffff",
+                borderRadius: "8px", // Round edges
+                "& .MuiOutlinedInput-root": {
+                  "& fieldset": {
+                    borderColor: "rgba(255, 255, 255, 0.5)", // Semi-transparent border
+                  },
+                  "&:hover fieldset": {
+                    borderColor: "#000000", // Black border on hover
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: "#90caf9", // Light blue focus border
+                  },
+                },
+                input: { color: "#000" }, // Keep input text black
+             }}
           />
           <Button variant="contained" color="primary" fullWidth onClick={shortenUrl} sx={{ mb: 2 }}>
             Shorten URL
@@ -64,9 +100,13 @@ const URLShortener: React.FC = () => {
           )}
         </CardContent>
       </Card>
-
             {/* Table for displaying URL history */}
-            <TableContainer component={Paper} sx={{ marginTop: 3, width: '75%'}}>
+            <TableContainer component={Paper} sx={{ marginTop: 3, 
+                                                    width: '75%', 
+                                                    backgroundColor: "rgba(212, 212, 212, 0.75)",
+                                                    borderRadius: "10px",
+                                                    boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.3)", // Soft shadow for depth
+            }}>
         <Table>
           <TableHead>
             <TableRow>
@@ -84,8 +124,27 @@ const URLShortener: React.FC = () => {
           </TableBody>
         </Table>
       </TableContainer>
+
+      <Snackbar 
+        open={snackbarOpen} 
+        autoHideDuration={2500} 
+        onClose={() => setSnackbarOpen(false)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        >
+        <Alert 
+            onClose={() => setSnackbarOpen(false)} 
+            severity="warning"
+            sx={{ 
+            backgroundColor: "#c5c5c5",
+            color: "#333333",       
+            fontSize: "1.1rem",      
+            borderRadius: "8px"       
+            }}
+        >
+            URL has already been shortened.  See Below.
+        </Alert>
+        </Snackbar>
     </Box>
-    </AspectRatio>
   );
 };
 
