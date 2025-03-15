@@ -1,6 +1,6 @@
 # URL Shortener App
 
-A simple React-based URL shortener that allows users to input a URL and generate a shortened version using hashing. It also provides functionality to expand a shortened URL back to its original form.
+A simple React-based URL shortener that allows users to input a URL and generate a shortened version using hashing.
 
 ## Features
 - Shorten long URLs into short, hash-based URLs
@@ -49,8 +49,8 @@ npm run preview
 ```
 
 ## Customization
-- To change the background image, update `URLShortener.css` in the `.background-image` class with a new image URL.
-- To modify URL hashing behavior, edit `shortenUrl` in `App.jsx`.
+- To change the background image, update `App.tsx` `backgroundImage:` with a new image URL.
+- To modify URL hashing behavior, edit `shortenUrl` in `App.tsx`.
 
 ## Troubleshooting
 - If you encounter dependency issues, try deleting `node_modules` and `package-lock.json`:
