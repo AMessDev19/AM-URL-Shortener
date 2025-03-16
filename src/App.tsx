@@ -16,6 +16,8 @@ const URLShortener: React.FC = () => {
     const [duplicateSnackbarOpen, setDuplicateSnackbarOpen] = useState(false); // For duplicate URL
     const [errorMessage, setErrorMessage] = useState('');
     const [darkMode, setDarkMode] = useState(false);
+    const [urlError, setUrlError] = useState(false); // State to track validation error
+    const [helperText, setHelperText] = useState(''); // State for helper text
 
     // Create a theme based on the dark mode state
     const theme = createTheme({
@@ -60,8 +62,34 @@ const URLShortener: React.FC = () => {
         }
     }
 
+    const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const url = e.target.value;
+        setOriginalUrl(url);
+    
+        if (!url) {
+          // No input, no error
+          setUrlError(false);
+          setHelperText('');
+          return;
+        }
+    
+        // Validate URL as the user types
+        if (!urlPattern.test(url)) {
+          setUrlError(true);
+          setHelperText('Please enter a valid URL: ' + `${url}`);
+        } else {
+          setUrlError(false);
+          setHelperText('');
+        }
+      };
+
     const shortenUrl = () => {
-        if (!originalUrl) return;
+        if (!originalUrl) {
+            // No input, no error
+            setUrlError(false);
+            setHelperText('');
+            return;
+        }
 
         if (!urlPattern.test(originalUrl)) {
             setErrorMessage('Please enter a valid URL: ' + `${originalUrl}`);
@@ -69,6 +97,8 @@ const URLShortener: React.FC = () => {
             return; // Prevent further processing
         }
 
+        setUrlError(false);
+        setHelperText('');
         const hash = CryptoJS.MD5(originalUrl).toString().slice(0, 6);
         setUrlDatabase((prev) => ({ ...prev, [hash]: originalUrl }));
         let shortURL = "https://sur.ly/" + `${hash}`;
@@ -127,10 +157,10 @@ const URLShortener: React.FC = () => {
                             label="Enter URL to shorten"
                             variant="outlined"
                             value={originalUrl}
-                            onChange={(e) => setOriginalUrl(e.target.value)}
+                            onChange={handleUrlChange} // Validate input on each change //{(e) => setOriginalUrl(e.target.value)}
                             onKeyDown={handleKeyDown}
-                            helperText="Make sure to include http:// or https://"
-                            error={!urlPattern.test(originalUrl)}
+                            helperText={helperText} // Show error message
+                            error={urlError} // Show red error if invalid
                             sx={{
                                 mb: 2,
                                 borderRadius: "8px"
