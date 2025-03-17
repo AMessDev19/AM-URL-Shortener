@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState } from "react";
-import { ThemeProvider, createTheme, CssBaseline, Theme } from "@mui/material";
+import { ThemeProvider, createTheme, CssBaseline, Theme, colors } from "@mui/material";
 
 // Define the context type for TypeScript
 interface ThemeContextType {
@@ -36,7 +36,7 @@ export const ThemeProviderCustom: React.FC<{ children: React.ReactNode }> = ({ c
             },
             background: {
                 default: darkMode ? '#121212' : '#ffffff', // Custom background color for both modes
-                paper: darkMode ? '#1d1d1d' : '#fafafa', // Paper background (cards, etc.)
+                paper: darkMode ? '#121212' : '#fafafa', // Paper background (cards, etc.)
             },
             text: {
                 primary: darkMode ? '#ffffff' : '#000000', // White text in dark mode, black text in light mode
@@ -47,7 +47,7 @@ export const ThemeProviderCustom: React.FC<{ children: React.ReactNode }> = ({ c
             MuiTextField: {
                 styleOverrides: {
                     root: {
-                        backgroundColor: darkMode ? '#333' : '#fff', // Dark background for input in dark mode
+                        backgroundColor: darkMode ? '' : '#fff', // Dark background for input in dark mode
                         color: darkMode ? '#fff' : '#000', // Text color
                     },
                 },

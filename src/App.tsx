@@ -1,5 +1,5 @@
-import { ThemeProviderCustom } from '../contexts/ThemeContext';  // Correct import
-import MainComponent from './MainComponent';  // Correct import
+import { ThemeProviderCustom } from '../contexts/ThemeContext';
+import MainComponent from './MainComponent';
 
 const App: React.FC = () => {
     return (

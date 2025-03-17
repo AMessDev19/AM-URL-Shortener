@@ -5,20 +5,18 @@ import { useThemeContext } from "../contexts/ThemeContext";
 import isValidUrl from "../utils/isValidUrl"
 
 const MainComponent = () => {
-    const [originalUrl, setOriginalUrl] = useState<string>("");
-    const [shortenedUrl, setShortenedUrl] = useState<string>("");
+    const [originalUrl, setOriginalUrl] = useState<string>('');
+    const [shortenedUrl, setShortenedUrl] = useState<string>('');
     const [history, setHistory] = useState<{ originalUrl: string; hash: string }[]>([]);
-    const [expandedUrl, setExpandedUrl] = useState<string>("");  // To display expanded URL
+    const [expandedUrl, setExpandedUrl] = useState<string>('');
     const [errorMessage, setErrorMessage] = useState('');
     const { darkMode, toggleDarkMode } = useThemeContext();
-    const [urlError, setUrlError] = useState(false); // State to track validation error
-    const [helperText, setHelperText] = useState(''); // State for helper text
+    const [errText, setErrText] = useState('');
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const invErrorMessage = `Please enter a valid URL: ${originalUrl}`;
     const dupErrorMessage = `URL has already been shortened: ${originalUrl}`;
     const copyMessage = `Copied to Clipboard: ${shortenedUrl}`;
 
-    //Enter Key acts the same as clicking the Button
     const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
         if (e.code === 'Enter') {
             handlePress();
@@ -30,34 +28,29 @@ const MainComponent = () => {
         setOriginalUrl(url);
 
         if (!url) {
-            // No input, no error
-            setUrlError(false);
-            setHelperText('');
+            setErrText('');
             return;
         }
 
-        // Validate URL as the user types
         if (!isValidUrl(url)) {
-            setUrlError(true);
-            setHelperText('Please enter a valid URL: ' + `${url}`);
+            setErrText(`Please enter a valid URL: ${url}`);
         } else {
-            setUrlError(false);
-            setHelperText('');
+            setErrText('');
         }
     };
 
-    // Check if the URL starts with "https://sur.ly/"
+    // check if the URL starts with "https://sur.ly/"
     const isSurlyUrl = originalUrl.startsWith("https://sur.ly/");
 
     const handlePress = async () => {
         if (isSurlyUrl) {
             //Expansion Logic
             expandUrl();
-            setShortenedUrl("");
+            setShortenedUrl('');
         } else {
             //Shortening Logic
             shortenUrl();
-            setExpandedUrl("");
+            setExpandedUrl('');
         }
     };
 
@@ -67,15 +60,14 @@ const MainComponent = () => {
         if (expanded) {
             setExpandedUrl(expanded.originalUrl);  // Set the original URL if found
         } else {
-            setExpandedUrl("");  // If not found, clear the expanded URL
+            setExpandedUrl('');  // If not found, clear the expanded URL
         }
     }
 
     const shortenUrl = () => {
         if (!originalUrl) {
             // No input, no error
-            setUrlError(false);
-            setHelperText('');
+            setErrText('');
             return;
         }
 
@@ -85,8 +77,7 @@ const MainComponent = () => {
             return; // Prevent further processing
         }
 
-        setUrlError(false);
-        setHelperText('');
+        setErrText('');
         const hash = CryptoJS.MD5(originalUrl).toString().slice(0, 6);
         const shortURL = `https://sur.ly/${hash}`;
 
@@ -114,7 +105,7 @@ const MainComponent = () => {
     };
 
     return (
-        <Box>
+        <>
             {/* Dark Mode Toggle Button */}
             <Button
                 onClick={() => {
@@ -130,10 +121,10 @@ const MainComponent = () => {
                     position: "fixed",
                     top: 0,
                     left: 0,
-                    width: "100vw", // Full viewport width
-                    height: "100vh", // Full viewport height
+                    width: "100vw",
+                    height: "100vh",
                     backgroundImage: "url('https://images.pexels.com/photos/247599/pexels-photo-247599.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1')",
-                    backgroundSize: "100% 100%", // Stretches the image to fit without gaps
+                    backgroundSize: "100% 100%",
                     backgroundRepeat: "no-repeat",
                     backgroundPosition: "center",
                     display: "flex",
@@ -143,34 +134,25 @@ const MainComponent = () => {
                     padding: 0, margin: 0, overflow: "hidden",
                 }}
             >
-                <Card sx={{ p: 3, mb: 4, backdropFilter: "blur(10px)", boxShadow: 3 }}>
+                <Card sx={{ p: 3, mb: 4, backdropFilter: "blur(10px)", boxShadow: 3, minWidth: '50%' }}>
                     <CardContent>
                         <Typography variant="h4" gutterBottom>
                             URL Shortener
                         </Typography>
                         <TextField
                             fullWidth
-                            label={isSurlyUrl ? "sur.ly URL to Expand" : "Enter URL to Shorten"}
+                            autoComplete="off"
+                            label="Enter URL to Shorten or Expand"
                             variant="outlined"
                             value={originalUrl}
                             onChange={handleUrlChange}
                             onKeyDown={handleKeyDown}
-                            helperText={helperText} // Show error message
-                            error={urlError} // Show red error if invalid
+                            helperText={errText}
+                            error={!!errText}
                             sx={{
                                 mb: 2,
-                                borderRadius: "8px",
                                 "& .Mui-error": {
-                                    // Prevent resizing or height changes when error is triggered
-                                    paddingBottom: 0, // Remove padding for error message to stop resizing
-                                },
-                                minHeight: "85px",  //Reserve some space for the helpText
-                            }}
-                            slotProps={{
-                                input: {
-                                    sx: {
-                                        height: "auto", // Maintain consistent height
-                                    },
+                                    paddingBottom: 0,
                                 },
                             }}
                         />
@@ -181,16 +163,17 @@ const MainComponent = () => {
                         </Tooltip>
                         {shortenedUrl && (
                             <Typography sx={{ mt: 2, wordBreak: "break-word" }}>
-                                Shortened URL: <a href={shortenedUrl} target="_blank" rel="noopener noreferrer">{shortenedUrl}</a>
+                                Shortened URL: {shortenedUrl}
                             </Typography>
                         )}
                         {expandedUrl && (
                             <Typography sx={{ mt: 2, wordBreak: "break-word" }}>
-                                Expanded URL: <a href={expandedUrl} target="_blank" rel="noopener noreferrer">{expandedUrl} </a>
+                                Expanded URL: {expandedUrl}
                             </Typography>
                         )}
                     </CardContent>
                 </Card>
+
                 {/* Table for displaying URL history */}
                 <TableContainer component={Paper} sx={{
                     marginTop: 3,
@@ -240,7 +223,7 @@ const MainComponent = () => {
                     {errorMessage}
                 </Alert>
             </Snackbar>
-        </Box>
+        </>
     );
 };
 
